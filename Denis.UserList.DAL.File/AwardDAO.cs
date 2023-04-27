@@ -1,4 +1,5 @@
 ﻿using Denis.UserList.Common.Entities;
+using System.Xml.Linq;
 
 namespace Denis.UserList.DAL.File
 {
@@ -8,50 +9,63 @@ namespace Denis.UserList.DAL.File
 
         public AwardDAO()
         {
-            CreateTableIfNotExists(DataPaths.AwardTableLocation);
-            CreateTableIfNotExists(DataPaths.UsersAwardsTableLocation);
+            InitializeFileSources();
             var awards = GetAllAwards().ToList();
             maxAwardID = awards.Any() ? awards.Max(award => award.ID) : 0;
         }
 
-        public void AppicationClosedHandler()
-        {
-            throw new NotImplementedException();
-        }
-
         public IEnumerable<Award> GetAllAwards()
         {
-            return System.IO.File.ReadAllLines(DataPaths.AwardTableLocation).
-                Select(line => line.Split(',')).
-                Select(strArr => new Award(int.Parse(strArr[0]), strArr[1]));
+            try
+            {
+                return System.IO.File.ReadAllLines(Common.AwardTableLocation).
+                    Select(line => line.Split(',')).
+                    Select(strArr => new Award(int.Parse(strArr[0]), strArr[1]));
+            }
+            catch (Exception exception)
+            {
+                throw new DALException("Cannot get all awards", exception);
+            }
         }
 
         public IEnumerable<Award> GetAwardsByUserID(int userID)
         {
-            var awardsID = System.IO.File.ReadAllLines(DataPaths.UsersAwardsTableLocation).
-                Select(line => line.Split(',')).
-                Where(strArr => strArr[0] == userID.ToString()).
-                Select(strArr => strArr[1]);
-            return System.IO.File.ReadAllLines(DataPaths.AwardTableLocation).
-                Select(line => line.Split(',')).
-                Where(strArr => awardsID.Contains(strArr[0])).
-                Select(strArr => new Award(int.Parse(strArr[0]), strArr[1]));
-        }
-
-        public bool TryAddAward(string name, out int awardID)
-        {
-            awardID = ++maxAwardID;
-            string userString = string.Format("{0},{1}", awardID.ToString(), name);
-            System.IO.File.AppendAllLines(DataPaths.AwardTableLocation, new[] { userString });
-            return true;
-        }
-
-        private void CreateTableIfNotExists(string location)
-        {
-            if (!System.IO.File.Exists(location))
+            try
             {
-                using var file = System.IO.File.Create(location);
+                var awardsID = System.IO.File.ReadAllLines(Common.UsersAwardsTableLocation).
+                    Select(line => line.Split(',')).
+                    Where(strArr => strArr[0] == userID.ToString()).
+                    Select(strArr => strArr[1]);
+                return System.IO.File.ReadAllLines(Common.AwardTableLocation).
+                    Select(line => line.Split(',')).
+                    Where(strArr => awardsID.Contains(strArr[0])).
+                    Select(strArr => new Award(int.Parse(strArr[0]), strArr[1]));
             }
+            catch (Exception exception)
+            {
+                throw new DALException("Cannot get award by user ID", exception);
+            }
+        }
+
+        public int AddAward(string name)
+        {
+            try
+            {
+                var awardID = ++maxAwardID;
+                string userString = string.Format("{0},{1}", awardID.ToString(), name);
+                System.IO.File.AppendAllLines(Common.AwardTableLocation, new[] { userString });
+                return awardID;
+            }
+            catch (Exception exception)
+            {
+                throw new DALException("Cannot add award", exception);
+            }
+        }
+
+        private static void InitializeFileSources()
+        {
+            Common.CreateTableIfNotExists(Common.AwardTableLocation);
+            Common.CreateTableIfNotExists(Common.UsersAwardsTableLocation);
         }
     }
 }

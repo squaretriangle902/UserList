@@ -1,11 +1,11 @@
 ﻿using Denis.UserList.Common.Entities;
 
-namespace Denis.UserList.DAL.File
+namespace Denis.UserList.BLL.Core
 {
-    public interface IAwardDAO
+    public interface IAwardLogic
     {
         IEnumerable<Award> GetAllAwards();
         IEnumerable<Award> GetAwardsByUserID(int userID);
-        int AddAward(string name);
+        int AddAward(string? name);
     }
 }

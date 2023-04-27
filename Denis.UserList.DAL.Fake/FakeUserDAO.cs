@@ -52,12 +52,22 @@ namespace Denis.UserList.DAL.Fake
             throw new NotImplementedException();
         }
 
-        public void AddUserAward(int userID, int awardID)
+        public void UserAddAward(int userID, int awardID)
         {
             throw new NotImplementedException();
         }
 
         public void AppicationClosedHandler()
+        {
+            throw new NotImplementedException();
+        }
+
+        public int AddUser(string name, DateTime birthDate)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DeleteUser(int userID)
         {
             throw new NotImplementedException();
         }

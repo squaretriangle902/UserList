@@ -25,12 +25,15 @@ namespace Denis.UserList.PL.Console
         private const string ShowUserAwardsCommand = "show_user_awards";        
         private const string IncorrectUserNameInputMessage = "Incorrect user name";        
         private const string HelpCommand = "help";
-        private const string AddUserAwardCommand = "add_user_award";
-        private static readonly IUserListLogic userListLogic;
+        private const string UserAddAwardCommand = "user_add_award";
+
+        private static readonly IUserLogic userLogic;
+        private static readonly IAwardLogic awardLogic;
 
         static PL()
         {
-            userListLogic = new UserListLogic();
+            userLogic = new UserLogic();
+            awardLogic = new AwardLogic();
         }
 
         public static void Main() 
@@ -49,22 +52,22 @@ namespace Denis.UserList.PL.Console
                         ShowUsers();
                         break;
                     case AddUserCommand:
-                        TryAddUser();
+                        AddUser();
                         break;
                     case DeleteUserCommand:
-                        TryDeleteUser();
+                        DeleteUser();
                         break;
                     case ShowAwardsCommand:
                         ShowAwards();
                         break;
                     case AddAwardCommand:
-                        TryAddAward();
+                        AddAward();
                         break;
                     case ShowUserAwardsCommand:
                         ShowUserAwards();
                         break;
-                    case AddUserAwardCommand:
-                        AddUserAward();
+                    case UserAddAwardCommand:
+                        UserAddAward();
                         break;
                     case ExitCommand:
                         return;
@@ -77,18 +80,26 @@ namespace Denis.UserList.PL.Console
 
         private static void AppicationClosedHandler(object? sender, EventArgs e)
         {
-            userListLogic.AppicationClosedHandler();
+            //userListLogic.AppicationClosedHandler();
         }
 
-        private static bool AddUserAward()
+        private static void UserAddAward()
         {
-            if (!TryReadInt("Enter award ID: ", "Incorrect award ID", out var awardID) ||
-                !TryReadInt(UserIDInputMessage, IncorrectUserIDInputMessage, out var userID))
+
+            try
             {
-                return false;
+                if (!TryReadInt("Enter award ID: ", "Incorrect award ID", out var awardID) ||
+                    !TryReadInt(UserIDInputMessage, IncorrectUserIDInputMessage, out var userID))
+                {
+                    return;
+                }
+                userLogic.UserAddAward(userID, awardID);
+                System.Console.WriteLine("Award added to user succesfully");
             }
-            userListLogic.AddUserAward(userID, awardID);
-            return true;
+            catch (Exception)
+            {
+                System.Console.WriteLine("Award was not added to user");
+            }
         }
 
         private static void Help()
@@ -99,59 +110,74 @@ namespace Denis.UserList.PL.Console
             System.Console.WriteLine(AddAwardCommand + " - adds award with specified title");
             System.Console.WriteLine(ShowAwardsCommand + " - shows all awards");
             System.Console.WriteLine(ShowUserAwardsCommand + " - shows all user awards");
-            System.Console.WriteLine(AddUserAwardCommand + " - add award to user");
+            System.Console.WriteLine(UserAddAwardCommand + " - add award to user");
         }
 
-        private static bool TryAddAward()
+        private static void AddAward()
         {
-            if (!TryReadString("Enter award title: ", "Incorrect award title", out var name))
+            try
             {
-                return false;
+                if (!TryReadString("Enter award title: ", "Incorrect award title", out var name))
+                {
+                    return;
+                }
+                System.Console.WriteLine("Award added succesfully", awardLogic.AddAward(name).ToString());
             }
-            if (userListLogic.TryAddAward(name, out int awardID))
+            catch (Exception)
             {
-                System.Console.WriteLine("Award added succesfully", awardID.ToString());
-                return true;
+                System.Console.WriteLine("Award was not added");
             }
-            System.Console.WriteLine("Award was not added");
-            return false;
         }
 
         private static void ShowAwards()
         {
-            foreach (var award in userListLogic.GetAllAwards())
+            try
             {
-                ShowAward(award);
+                foreach (var award in awardLogic.GetAllAwards())
+                {
+                    ShowAward(award);
+                }
+            }
+            catch (Exception)
+            {
+                System.Console.WriteLine("Cannot get all awards");
             }
         }
 
         private static void ShowAward(Award award)
         {
             System.Console.WriteLine("ID: {0}, Title: {1}", award.ID.ToString(), award.Title.ToString());
-
         }
 
-        private static bool TryAddUser()
+        private static void AddUser()
         {
-            if (!TryReadString(UserNameInputMessage, IncorrectUserNameInputMessage, out var name) ||
-                !TryReadDate(DateInputConsoleMessage, IncorrectDateInputMessage, out var birthDate))
+            try
             {
-                return false;
+                if (!TryReadString(UserNameInputMessage, IncorrectUserNameInputMessage, out var name) ||
+                    !TryReadDate(DateInputConsoleMessage, IncorrectDateInputMessage, out var birthDate))
+                {
+                    return;
+                }
+                System.Console.WriteLine(UserCreationSucceededWithIDFormat, userLogic.AddUser(name, birthDate));
             }
-            if (userListLogic.TryAddUser(name, birthDate, out int userID))
+            catch (Exception)
             {
-                System.Console.WriteLine(UserCreationSucceededWithIDFormat, userID.ToString());
-                return true;
+                System.Console.WriteLine(UserCreationFailMessage);
             }
-            System.Console.WriteLine(UserCreationFailMessage);
-            return false;
         }
 
         private static void ShowUsers()
         {
-            foreach (var user in userListLogic.GetAllUsers()) 
+            try
             {
-                ShowUser(user);
+                foreach (var user in userLogic.GetAllUsers())
+                {
+                    ShowUser(user);
+                }
+            }
+            catch (Exception)
+            {
+                System.Console.WriteLine("Cannot get all users");
             }
         }
 
@@ -161,32 +187,40 @@ namespace Denis.UserList.PL.Console
                 user.BirthDate.ToShortDateString(), user.Age.ToString());
         }
 
-        private static bool TryDeleteUser()
+        private static void DeleteUser()
         {
-            if (!TryReadInt(UserIDInputMessage, IncorrectUserIDInputMessage, out int userID))
+            try
             {
-                return false;
-            }
-            if (userListLogic.TryDeleteUser(userID))
-            {
+                if (!TryReadInt(UserIDInputMessage, IncorrectUserIDInputMessage, out int userID))
+                {
+                    return;
+                }
+                userLogic.DeleteUser(userID);
                 System.Console.WriteLine(SuccessfulUserDeletionMessage);
-                return true;
             }
-            System.Console.WriteLine(UnsuccessfulUserDeletionMessage);
-            return false;
+            catch (Exception)
+            {
+                System.Console.WriteLine(UnsuccessfulUserDeletionMessage);
+            }
         }
 
-        private static bool ShowUserAwards()
+        private static void ShowUserAwards()
         {
-            if (!TryReadInt(UserIDInputMessage, IncorrectUserIDInputMessage, out int userID))
+            try
             {
-                return false;
+                if (!TryReadInt(UserIDInputMessage, IncorrectUserIDInputMessage, out int userID))
+                {
+                    return;
+                }
+                foreach (var award in awardLogic.GetAwardsByUserID(userID))
+                {
+                    ShowAward(award);
+                }
             }
-            foreach (var award in userListLogic.GetUser(userID).GetAwards())
+            catch (Exception)
             {
-                ShowAward(award);
+                System.Console.WriteLine("Cannot show user awards");
             }
-            return true;
         }
 
         private static bool TryReadString(string inputConsoleMessage, string incorrectInputMessage, out string? result)
