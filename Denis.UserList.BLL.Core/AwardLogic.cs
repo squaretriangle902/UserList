@@ -1,13 +1,6 @@
 ﻿using Denis.UserList.Common.Entities;
-using Denis.UserList.Common.Libraries;
-using Denis.UserList.DAL.Fake;
 using Denis.UserList.DAL.File;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace Denis.UserList.BLL.Core
 {
@@ -17,7 +10,14 @@ namespace Denis.UserList.BLL.Core
 
         public AwardLogic()
         {
-            awardDAO = new AwardDAO();
+            switch (Common.ReadConfigFile("award_database"))
+            {
+                case "awardDAO":
+                    awardDAO = new AwardDAO();
+                    break;
+                default:
+                    throw new BLLException("Cannot get awards database");
+            }
         }
 
         public IEnumerable<Award> GetAwardsByUserID(int userID)

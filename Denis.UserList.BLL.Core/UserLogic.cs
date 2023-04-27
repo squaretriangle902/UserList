@@ -2,8 +2,6 @@
 using Denis.UserList.Common.Libraries;
 using Denis.UserList.DAL.Fake;
 using Denis.UserList.DAL.File;
-using System;
-using System.Xml.Linq;
 
 namespace Denis.UserList.BLL.Core
 {
@@ -14,7 +12,14 @@ namespace Denis.UserList.BLL.Core
 
         public UserLogic()
         {
-            userDAO = new UserDAO();
+            switch (Common.ReadConfigFile("user_database"))
+            {
+                case "userDAO":
+                    userDAO = new UserDAO();
+                    break;
+                default:
+                    throw new BLLException("Cannot get user database");
+            }
         }
 
         public void DeleteUser(int userID)

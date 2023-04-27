@@ -27,18 +27,21 @@ namespace Denis.UserList.PL.Console
         private const string HelpCommand = "help";
         private const string UserAddAwardCommand = "user_add_award";
 
-        private static readonly IUserLogic userLogic;
-        private static readonly IAwardLogic awardLogic;
-
-        static PL()
-        {
-            userLogic = new UserLogic();
-            awardLogic = new AwardLogic();
-        }
+        private static IUserLogic userLogic;
+        private static IAwardLogic awardLogic;
 
         public static void Main() 
         {
-            AppDomain.CurrentDomain.ProcessExit += new EventHandler(AppicationClosedHandler);
+            try
+            {
+                userLogic = new UserLogic();
+                awardLogic = new AwardLogic();
+            }
+            catch (Exception)
+            {
+                System.Console.WriteLine("Cannot find database");
+                return;
+            }
             while (true) 
             {
                 System.Console.Write(CommandInputMessage);
@@ -76,11 +79,6 @@ namespace Denis.UserList.PL.Console
                         break;
                 }
             }
-        }
-
-        private static void AppicationClosedHandler(object? sender, EventArgs e)
-        {
-            //userListLogic.AppicationClosedHandler();
         }
 
         private static void UserAddAward()
