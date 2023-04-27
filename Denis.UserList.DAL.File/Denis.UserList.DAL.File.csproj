@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Denis.UserList.Common.Entities\Denis.UserList.Common.Entities.csproj" />
+    <ProjectReference Include="..\Denis.UserList.DAL.Abstract\Denis.UserList.DAL.Abstract.csproj" />
+  </ItemGroup>
+
+</Project>

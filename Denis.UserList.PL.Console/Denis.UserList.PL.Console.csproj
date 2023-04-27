@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Denis.UserList.BLL.Abstract\Denis.UserList.BLL.Abstract.csproj" />
+    <ProjectReference Include="..\Denis.UserList.BLL.Core\Denis.UserList.BLL.Core.csproj" />
+    <ProjectReference Include="..\Denis.UserList.Common.Entities\Denis.UserList.Common.Entities.csproj" />
+  </ItemGroup>
+
+</Project>
