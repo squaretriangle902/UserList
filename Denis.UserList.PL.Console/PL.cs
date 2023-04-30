@@ -5,33 +5,12 @@ namespace Denis.UserList.PL.Console
 {
     public static class PL
     {
-        private const string UserIDInputMessage = "Enter user ID: ";
-        private const string IncorrectUserIDInputMessage = "Incorrect user ID input";
-        private const string SuccessfulUserDeletionMessage = "User deletion succeeded";
-        private const string UnsuccessfulUserDeletionMessage = "User deletion failed";
-        private const string IncorrectCommandMessage = "Incorrect command";
-        private const string ExitCommand = "exit";
-        private const string DateInputConsoleMessage = "Enter date: ";
-        private const string IncorrectDateInputMessage = "Incorrect date input";
-        private const string CommandInputMessage = "Enter command: ";
-        private const string UserNameInputMessage = "Enter user name: ";
-        private const string UserCreationFailMessage = "User creation failed";
-        private const string UserCreationSucceededWithIDFormat = "User was created with ID: {0}";
-        private const string DeleteUserCommand = "delete_user";
-        private const string AddUserCommand = "add_user"; 
-        private const string ShowUsersCommand = "show_users";
-        private const string ShowAwardsCommand = "show_awards";
-        private const string AddAwardCommand = "add_award";
-        private const string ShowUserAwardsCommand = "show_user_awards";        
-        private const string IncorrectUserNameInputMessage = "Incorrect user name";        
-        private const string HelpCommand = "help";
-        private const string UserAddAwardCommand = "user_add_award";
-
         private static IUserLogic userLogic;
         private static IAwardLogic awardLogic;
 
         public static void Main() 
         {
+
             try
             {
                 userLogic = new UserLogic();
@@ -42,43 +21,49 @@ namespace Denis.UserList.PL.Console
                 System.Console.WriteLine("Cannot find database");
                 return;
             }
+            AppDomain.CurrentDomain.ProcessExit += new EventHandler(CurrentDomainProcessExit);
             while (true) 
             {
-                System.Console.Write(CommandInputMessage);
+                System.Console.Write(StringConstants.CommandInputMessage);
                 var command = System.Console.ReadLine();
                 switch (command) 
                 {
-                    case HelpCommand:
+                    case StringConstants.HelpCommand:
                         Help();
                         break;
-                    case ShowUsersCommand:
+                    case StringConstants.ShowUsersCommand:
                         ShowUsers();
                         break;
-                    case AddUserCommand:
+                    case StringConstants.AddUserCommand:
                         AddUser();
                         break;
-                    case DeleteUserCommand:
+                    case StringConstants.DeleteUserCommand:
                         DeleteUser();
                         break;
-                    case ShowAwardsCommand:
+                    case StringConstants.ShowAwardsCommand:
                         ShowAwards();
                         break;
-                    case AddAwardCommand:
+                    case StringConstants.AddAwardCommand:
                         AddAward();
                         break;
-                    case ShowUserAwardsCommand:
+                    case StringConstants.ShowUserAwardsCommand:
                         ShowUserAwards();
                         break;
-                    case UserAddAwardCommand:
+                    case StringConstants.UserAddAwardCommand:
                         UserAddAward();
                         break;
-                    case ExitCommand:
+                    case StringConstants.ExitCommand:
                         return;
                     default:
-                        System.Console.WriteLine(IncorrectCommandMessage);
+                        System.Console.WriteLine(StringConstants.IncorrectCommandMessage);
                         break;
                 }
             }
+        }
+
+        private static void CurrentDomainProcessExit(object? sender, EventArgs e)
+        {
+            userLogic.ApplicationCloseEventHandler();
         }
 
         private static void UserAddAward()
@@ -87,11 +72,11 @@ namespace Denis.UserList.PL.Console
             try
             {
                 if (!TryReadInt("Enter award ID: ", "Incorrect award ID", out var awardID) ||
-                    !TryReadInt(UserIDInputMessage, IncorrectUserIDInputMessage, out var userID))
+                    !TryReadInt(StringConstants.UserIDInputMessage, StringConstants.IncorrectUserIDInputMessage, out var userID))
                 {
                     return;
                 }
-                userLogic.UserAddAward(userID, awardID);
+                userLogic.UserAddAward(userID, awardID, awardLogic);
                 System.Console.WriteLine("Award added to user succesfully");
             }
             catch (Exception)
@@ -102,13 +87,13 @@ namespace Denis.UserList.PL.Console
 
         private static void Help()
         {
-            System.Console.WriteLine(DeleteUserCommand + " - delete user with specified ID");
-            System.Console.WriteLine(AddUserCommand + " - adds user with specified name and date of birth");
-            System.Console.WriteLine(ShowUsersCommand + " - shows all users");
-            System.Console.WriteLine(AddAwardCommand + " - adds award with specified title");
-            System.Console.WriteLine(ShowAwardsCommand + " - shows all awards");
-            System.Console.WriteLine(ShowUserAwardsCommand + " - shows all user awards");
-            System.Console.WriteLine(UserAddAwardCommand + " - add award to user");
+            System.Console.WriteLine(StringConstants.DeleteUserCommand + " - delete user with specified ID");
+            System.Console.WriteLine(StringConstants.AddUserCommand + " - adds user with specified name and date of birth");
+            System.Console.WriteLine(StringConstants.ShowUsersCommand + " - shows all users");
+            System.Console.WriteLine(StringConstants.AddAwardCommand + " - adds award with specified title");
+            System.Console.WriteLine(StringConstants.ShowAwardsCommand + " - shows all awards");
+            System.Console.WriteLine(StringConstants.ShowUserAwardsCommand + " - shows all user awards");
+            System.Console.WriteLine(StringConstants.UserAddAwardCommand + " - add award to user");
         }
 
         private static void AddAward()
@@ -151,16 +136,16 @@ namespace Denis.UserList.PL.Console
         {
             try
             {
-                if (!TryReadString(UserNameInputMessage, IncorrectUserNameInputMessage, out var name) ||
-                    !TryReadDate(DateInputConsoleMessage, IncorrectDateInputMessage, out var birthDate))
+                if (!TryReadString(StringConstants.UserNameInputMessage, StringConstants.IncorrectUserNameInputMessage, out var name) ||
+                    !TryReadDate(StringConstants.DateInputConsoleMessage, StringConstants.IncorrectDateInputMessage, out var birthDate))
                 {
                     return;
                 }
-                System.Console.WriteLine(UserCreationSucceededWithIDFormat, userLogic.AddUser(name, birthDate));
+                System.Console.WriteLine(StringConstants.UserCreationSucceededWithIDFormat, userLogic.AddUser(name, birthDate));
             }
             catch (Exception)
             {
-                System.Console.WriteLine(UserCreationFailMessage);
+                System.Console.WriteLine(StringConstants.UserCreationFailMessage);
             }
         }
 
@@ -189,24 +174,29 @@ namespace Denis.UserList.PL.Console
         {
             try
             {
-                if (!TryReadInt(UserIDInputMessage, IncorrectUserIDInputMessage, out int userID))
+                if (!TryReadUserID(out var userID))
                 {
                     return;
                 }
                 userLogic.DeleteUser(userID);
-                System.Console.WriteLine(SuccessfulUserDeletionMessage);
+                System.Console.WriteLine(StringConstants.SuccessfulUserDeletionMessage);
             }
             catch (Exception)
             {
-                System.Console.WriteLine(UnsuccessfulUserDeletionMessage);
+                System.Console.WriteLine(StringConstants.UnsuccessfulUserDeletionMessage);
             }
+        }
+
+        private static bool TryReadUserID(out int userID)
+        {
+            return TryReadInt(StringConstants.UserIDInputMessage, StringConstants.IncorrectUserIDInputMessage, out userID);
         }
 
         private static void ShowUserAwards()
         {
             try
             {
-                if (!TryReadInt(UserIDInputMessage, IncorrectUserIDInputMessage, out int userID))
+                if (!TryReadUserID(out var userID))
                 {
                     return;
                 }

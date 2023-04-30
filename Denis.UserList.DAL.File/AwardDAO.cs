@@ -32,7 +32,7 @@ namespace Denis.UserList.DAL.File
         {
             try
             {
-                var awardsID = System.IO.File.ReadAllLines(Common.UsersAwardsTableLocation).
+                var awardsID = System.IO.File.ReadAllLines(Common.UsersAwardsFIleLocation).
                     Select(line => line.Split(',')).
                     Where(strArr => strArr[0] == userID.ToString()).
                     Select(strArr => strArr[1]);
@@ -47,14 +47,14 @@ namespace Denis.UserList.DAL.File
             }
         }
 
-        public int AddAward(string name)
+        public int AddAward(Award award)
         {
             try
             {
-                var awardID = ++maxAwardID;
-                string userString = string.Format("{0},{1}", awardID.ToString(), name);
+                award.ID = ++maxAwardID;
+                string userString = string.Format("{0},{1}", award.ID.ToString(), award.Title);
                 System.IO.File.AppendAllLines(Common.AwardTableLocation, new[] { userString });
-                return awardID;
+                return award.ID;
             }
             catch (Exception exception)
             {
@@ -65,7 +65,7 @@ namespace Denis.UserList.DAL.File
         private static void InitializeFileSources()
         {
             Common.CreateTableIfNotExists(Common.AwardTableLocation);
-            Common.CreateTableIfNotExists(Common.UsersAwardsTableLocation);
+            Common.CreateTableIfNotExists(Common.UsersAwardsFIleLocation);
         }
     }
 }

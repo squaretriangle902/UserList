@@ -6,7 +6,7 @@ namespace Denis.UserList.Common.Entities
     {
         private readonly HashSet<Award> awards;
 
-        public int ID { get; private set; }
+        public int ID { get; set; }
 
         public string Name { get; private set; }
 
@@ -22,14 +22,16 @@ namespace Denis.UserList.Common.Entities
             awards = new HashSet<Award>();
         }
 
+        public User(string name, DateTime birthDate)
+        {
+            Name = name;
+            BirthDate = birthDate;
+            awards = new HashSet<Award>();
+        }
+
         public bool AddAward(Award award) 
         {
             return awards.Add(award);
-        }
-
-        public bool RemoveAward(Award award)
-        {
-            return awards.Remove(award);
         }
 
         public IEnumerable<Award> GetAwards()

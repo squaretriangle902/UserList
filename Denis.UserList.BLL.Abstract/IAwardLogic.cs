@@ -7,5 +7,6 @@ namespace Denis.UserList.BLL.Core
         IEnumerable<Award> GetAllAwards();
         IEnumerable<Award> GetAwardsByUserID(int userID);
         int AddAward(string? name);
+        Award GetAward(int awardID);
     }
 }

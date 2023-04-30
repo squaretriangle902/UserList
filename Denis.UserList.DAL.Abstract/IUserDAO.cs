@@ -6,7 +6,7 @@ namespace Denis.UserList.DAL.Fake
     {
         void UserAddAward(int userID, int awardID);
         IEnumerable<User> GetAllUsers();
-        int AddUser(string name, DateTime birthDate);
+        int AddUser(User user);
         void DeleteUser(int userID);
     }
 }

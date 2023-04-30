@@ -2,9 +2,9 @@
 {
     public static class Common
     {
-        public const string UserTableLocation = @"E:\UserList\Database\users.txt";
-        public const string UsersAwardsTableLocation = @"E:\UserList\Database\usersAwards.txt";
-        public const string AwardTableLocation = @"E:\UserList\Database\awards.txt";
+        public const string UserFileLocation = @"E:\UserList\Database\user.csv";
+        public const string UsersAwardsFIleLocation = @"E:\UserList\Database\usersAwards.csv";
+        public const string AwardTableLocation = @"E:\UserList\Database\award.csv";
 
         public static void CreateTableIfNotExists(string location)
         {

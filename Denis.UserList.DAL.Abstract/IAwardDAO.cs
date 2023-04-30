@@ -6,6 +6,6 @@ namespace Denis.UserList.DAL.File
     {
         IEnumerable<Award> GetAllAwards();
         IEnumerable<Award> GetAwardsByUserID(int userID);
-        int AddAward(string name);
+        int AddAward(Award award);
     }
 }
