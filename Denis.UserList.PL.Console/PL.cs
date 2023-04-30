@@ -63,7 +63,8 @@ namespace Denis.UserList.PL.Console
 
         private static void CurrentDomainProcessExit(object? sender, EventArgs e)
         {
-            userLogic.ApplicationCloseEventHandler();
+            userLogic.ApplicationCloseEventHandler(awardLogic);
+            awardLogic.ApplicationCloseEventHandler();
         }
 
         private static void UserAddAward()
@@ -200,7 +201,7 @@ namespace Denis.UserList.PL.Console
                 {
                     return;
                 }
-                foreach (var award in awardLogic.GetAwardsByUserID(userID))
+                foreach (var award in awardLogic.GetAwardsByUserID(userID, userLogic))
                 {
                     ShowAward(award);
                 }

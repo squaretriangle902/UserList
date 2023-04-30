@@ -6,11 +6,12 @@ namespace Denis.UserList.BLL.Core
     public class AwardLogic : IAwardLogic
     {
         private readonly IAwardDAO awardDAO;
-        private readonly Dictionary<int, Award> awards;
+        private readonly Dictionary<int, Award> awardCache;
+        private int LastID;
 
         public AwardLogic()
         {
-            awards = new Dictionary<int, Award>();  
+            awardCache = new Dictionary<int, Award>();  
             switch (Common.ReadConfigFile("award_database"))
             {
                 case "awardDAO":
@@ -21,8 +22,12 @@ namespace Denis.UserList.BLL.Core
             }
         }
 
-        public IEnumerable<Award> GetAwardsByUserID(int userID)
+        public IEnumerable<Award> GetAwardsByUserID(int userID, IUserLogic userLogic)
         {
+            if (userID < 0)
+            {
+                return userLogic.GetUser(userID).GetAwards();
+            }
             return GetAwardsByUserIDFromDatabase(userID);
         }
 
@@ -40,6 +45,11 @@ namespace Denis.UserList.BLL.Core
 
         public IEnumerable<Award> GetAllAwards()
         {
+            return awardCache.Values.Union(GetAllAwardsFromDatabase());
+        }
+
+        private IEnumerable<Award> GetAllAwardsFromDatabase()
+        {
             try
             {
                 return awardDAO.GetAllAwards();
@@ -52,13 +62,20 @@ namespace Denis.UserList.BLL.Core
 
         public int AddAward(string? title)
         {
+            if (string.IsNullOrEmpty(title))
+            {
+                throw new ArgumentException("title is null or empty");
+            }
+            LastID--;
+            awardCache.Add(LastID, new Award(LastID, title));
+            return LastID;
+        }
+
+        private int AddAwardToDatabase(Award award)
+        {
             try
             {
-                if (string.IsNullOrEmpty(title))
-                {
-                    throw new ArgumentException("title is null or empty");
-                }
-                return awardDAO.AddAward(new Award(title));
+                return awardDAO.AddAward(award);
             }
             catch (Exception exception)
             {
@@ -67,6 +84,23 @@ namespace Denis.UserList.BLL.Core
         }
 
         public Award GetAward(int awardID)
+        {
+            if (awardCache.TryGetValue(awardID, out Award? award))
+            {
+                return award;
+            }
+            return GetAwardFromDatabase(awardID);
+        }
+
+        public void ApplicationCloseEventHandler()
+        {
+            foreach (var award in awardCache.Values)
+            {
+                var newUserID = AddAwardToDatabase(award);
+            }
+        }
+
+        private Award GetAwardFromDatabase(int awardID)
         {
             try
             {

@@ -5,8 +5,9 @@ namespace Denis.UserList.BLL.Core
     public interface IAwardLogic
     {
         IEnumerable<Award> GetAllAwards();
-        IEnumerable<Award> GetAwardsByUserID(int userID);
+        IEnumerable<Award> GetAwardsByUserID(int userID, IUserLogic userLogic);
         int AddAward(string? name);
         Award GetAward(int awardID);
+        void ApplicationCloseEventHandler();
     }
 }

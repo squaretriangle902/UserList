@@ -80,13 +80,14 @@ namespace Denis.UserList.BLL.Core
             }    
         }
 
-        public void ApplicationCloseEventHandler()
+        public void ApplicationCloseEventHandler(IAwardLogic awardLogic)
         {
             foreach (var user in userCache.Values)
             {
                 var newUserID = AddUserToDatabase(user);
                 foreach (var award in user.GetAwards())
                 {
+                    award.ID = award.ID < 0 ? awardLogic.AddAward(award.Title) : award.ID;
                     UserAddAwardToDatabase(newUserID, award.ID);
                 }
             }
