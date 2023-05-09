@@ -4,9 +4,10 @@ namespace Denis.UserList.DAL.Fake
 {
     public interface IUserDAO
     {
-        void UserAddAward(int userID, int awardID);
+        public int MaxUserID { get; }
+        void AddUserAwards(IEnumerable<User> users);
         IEnumerable<User> GetAllUsers();
-        int AddUser(User user);
+        public void AddUsers(IEnumerable<User> users);
         void DeleteUser(int userID);
     }
 }

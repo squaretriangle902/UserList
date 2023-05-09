@@ -13,8 +13,8 @@ namespace Denis.UserList.PL.Console
 
             try
             {
-                userLogic = new UserLogic();
                 awardLogic = new AwardLogic();
+                userLogic = new UserLogic(awardLogic);
             }
             catch (Exception)
             {
@@ -50,7 +50,10 @@ namespace Denis.UserList.PL.Console
                         ShowUserAwards();
                         break;
                     case StringConstants.UserAddAwardCommand:
-                        UserAddAward();
+                        AddUserAward();
+                        break;
+                    case "Update":
+                        UpdateDatabase();
                         break;
                     case StringConstants.ExitCommand:
                         return;
@@ -63,21 +66,26 @@ namespace Denis.UserList.PL.Console
 
         private static void CurrentDomainProcessExit(object? sender, EventArgs e)
         {
-            userLogic.ApplicationCloseEventHandler(awardLogic);
-            awardLogic.ApplicationCloseEventHandler();
+            UpdateDatabase();
         }
 
-        private static void UserAddAward()
+        private static void UpdateDatabase()
+        {
+            awardLogic.DatabaseUpdate();
+            userLogic.DatabaseUpdate();
+        }
+
+        private static void AddUserAward()
         {
 
             try
             {
-                if (!TryReadInt("Enter award ID: ", "Incorrect award ID", out var awardID) ||
-                    !TryReadInt(StringConstants.UserIDInputMessage, StringConstants.IncorrectUserIDInputMessage, out var userID))
+                if (!TryReadInt(StringConstants.UserIDInputMessage, StringConstants.IncorrectUserIDInputMessage, out var userID) ||
+                    !TryReadInt("Enter award ID: ", "Incorrect award ID", out var awardID))
                 {
                     return;
                 }
-                userLogic.UserAddAward(userID, awardID, awardLogic);
+                userLogic.AddUserAward(userID, awardID);
                 System.Console.WriteLine("Award added to user succesfully");
             }
             catch (Exception)
@@ -105,7 +113,8 @@ namespace Denis.UserList.PL.Console
                 {
                     return;
                 }
-                System.Console.WriteLine("Award added succesfully", awardLogic.AddAward(name).ToString());
+                var awardID = awardLogic.AddAward(name);
+                System.Console.WriteLine("Award added succesfully", awardID.ToString());
             }
             catch (Exception)
             {
@@ -201,7 +210,7 @@ namespace Denis.UserList.PL.Console
                 {
                     return;
                 }
-                foreach (var award in awardLogic.GetAwardsByUserID(userID, userLogic))
+                foreach (var award in userLogic.GetUserAwards(userID))
                 {
                     ShowAward(award);
                 }

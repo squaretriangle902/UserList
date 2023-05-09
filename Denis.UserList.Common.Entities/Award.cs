@@ -10,10 +10,5 @@
             ID = id;
             Title = title;
         }
-
-        public Award(string title)
-        {
-            Title = title;
-        }
     }
 }

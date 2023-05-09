@@ -1,13 +1,17 @@
 ﻿using Denis.UserList.Common.Entities;
+using Denis.UserList.DAL.Fake;
 using Denis.UserList.DAL.File;
+using System.Linq;
 
 namespace Denis.UserList.BLL.Core
 {
     public class AwardLogic : IAwardLogic
     {
-        private readonly IAwardDAO awardDAO;
         private readonly Dictionary<int, Award> awardCache;
-        private int LastID;
+        private int maxAwardID;
+        private bool isCacheActual;
+
+        public IAwardDAO AwardDAO { get; private set; }
 
         public AwardLogic()
         {
@@ -15,27 +19,19 @@ namespace Denis.UserList.BLL.Core
             switch (Common.ReadConfigFile("award_database"))
             {
                 case "awardDAO":
-                    awardDAO = new AwardDAO();
+                    AwardDAO = new FileAwardDAO();
                     break;
                 default:
                     throw new BLLException("Cannot get awards database");
             }
+            maxAwardID = AwardDAO.MaxAwardID;
         }
 
-        public IEnumerable<Award> GetAwardsByUserID(int userID, IUserLogic userLogic)
-        {
-            if (userID < 0)
-            {
-                return userLogic.GetUser(userID).GetAwards();
-            }
-            return GetAwardsByUserIDFromDatabase(userID);
-        }
-
-        private IEnumerable<Award> GetAwardsByUserIDFromDatabase(int userID)
+        public IEnumerable<Award> GetUserAwards(int userID)
         {
             try
             {
-                return awardDAO.GetAwardsByUserID(userID);
+                return AwardDAO.GetUserAwards(userID);
             }
             catch (Exception exception)
             {
@@ -45,18 +41,13 @@ namespace Denis.UserList.BLL.Core
 
         public IEnumerable<Award> GetAllAwards()
         {
-            return awardCache.Values.Union(GetAllAwardsFromDatabase());
-        }
-
-        private IEnumerable<Award> GetAllAwardsFromDatabase()
-        {
-            try
+            if (!isCacheActual)
             {
-                return awardDAO.GetAllAwards();
+                CacheAddAllAwards();
             }
-            catch (Exception exception)
+            foreach (var award in awardCache.Values)
             {
-                throw new BLLException("Cannot get all award", exception);
+                yield return award;
             }
         }
 
@@ -66,50 +57,60 @@ namespace Denis.UserList.BLL.Core
             {
                 throw new ArgumentException("title is null or empty");
             }
-            LastID--;
-            awardCache.Add(LastID, new Award(LastID, title));
-            return LastID;
-        }
-
-        private int AddAwardToDatabase(Award award)
-        {
-            try
-            {
-                return awardDAO.AddAward(award);
-            }
-            catch (Exception exception)
-            {
-                throw new BLLException("Cannot add award", exception);
-            }
+            awardCache.Add(++maxAwardID, new Award(maxAwardID, title));
+            return maxAwardID;
         }
 
         public Award GetAward(int awardID)
         {
-            if (awardCache.TryGetValue(awardID, out Award? award))
-            {
-                return award;
-            }
-            return GetAwardFromDatabase(awardID);
+            return GetAwardInternal(awardID);
         }
 
-        public void ApplicationCloseEventHandler()
+        public void DatabaseUpdate()
         {
-            foreach (var award in awardCache.Values)
-            {
-                var newUserID = AddAwardToDatabase(award);
-            }
+            AwardDAO.AddAwards(awardCache.Values);
         }
 
-        private Award GetAwardFromDatabase(int awardID)
+        private void CacheAddAward(int awardID)
         {
             try
             {
-                return awardDAO.GetAllAwards().First(award => award.ID == awardID);
+                awardCache.Add(awardID, AwardDAO.GetAllAwards().First(award => award.ID == awardID));
             }
             catch (Exception exception)
             {
                 throw new BLLException("Cannot get user by ID", exception);
             }
         }
+
+        private Award GetAwardInternal(int awardID)
+        {
+            if (!awardCache.ContainsKey(awardID))
+            {
+                CacheAddAward(awardID);
+            }
+            if (!awardCache.TryGetValue(awardID, out Award? award) || award is null)
+            {
+                throw new BLLException("Cannot find user by ID");
+            }
+            return award;
+        }
+
+        private void CacheAddAllAwards()
+        {
+            try
+            {
+                isCacheActual = true;
+                foreach (var award in AwardDAO.GetAllAwards())
+                {
+                    awardCache.Add(award.ID, award);
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new BLLException("Cannot get all awards", exception);
+            }
+        }
+
     }
 }

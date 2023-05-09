@@ -22,16 +22,17 @@ namespace Denis.UserList.Common.Entities
             awards = new HashSet<Award>();
         }
 
-        public User(string name, DateTime birthDate)
-        {
-            Name = name;
-            BirthDate = birthDate;
-            awards = new HashSet<Award>();
-        }
-
         public bool AddAward(Award award) 
         {
             return awards.Add(award);
+        }
+
+        public void AddAwards(IEnumerable<Award> awards)
+        {
+            foreach (var award in awards)
+            {
+                this.awards.Add(award);
+            }
         }
 
         public IEnumerable<Award> GetAwards()

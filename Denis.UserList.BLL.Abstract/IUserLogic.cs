@@ -8,7 +8,8 @@ namespace Denis.UserList.BLL.Core
         User GetUser(int userID);
         int AddUser(string? name, DateTime birthDate);
         void DeleteUser(int userID);
-        void UserAddAward(int userID, int awardID, IAwardLogic awardLogic);
-        void ApplicationCloseEventHandler(IAwardLogic awardLogic);
+        void AddUserAward(int userID, int awardID);
+        void DatabaseUpdate();
+        IEnumerable<Award> GetUserAwards(int userID);
     }
 }

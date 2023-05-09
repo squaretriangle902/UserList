@@ -13,14 +13,14 @@
         internal const string UserNameInputMessage = "Enter user name: ";
         internal const string UserCreationFailMessage = "User creation failed";
         internal const string UserCreationSucceededWithIDFormat = "User was created with ID: {0}";
-        internal const string DeleteUserCommand = "delete_user";
-        internal const string AddUserCommand = "add_user";
-        internal const string ShowUsersCommand = "show_users";
-        internal const string ShowAwardsCommand = "show_awards";
-        internal const string AddAwardCommand = "add_award";
-        internal const string ShowUserAwardsCommand = "show_user_awards";
+        internal const string DeleteUserCommand = "deleteUser";
+        internal const string AddUserCommand = "addUser";
+        internal const string ShowUsersCommand = "showUsers";
+        internal const string ShowAwardsCommand = "showAwards";
+        internal const string AddAwardCommand = "addAward";
+        internal const string ShowUserAwardsCommand = "showUserAwards";
         internal const string HelpCommand = "help";
-        internal const string UserAddAwardCommand = "user_add_award";
+        internal const string UserAddAwardCommand = "userAddAward";
         internal const string IncorrectUserNameInputMessage = "Incorrect user name";
         internal const string ExitCommand = "exit";
     }
